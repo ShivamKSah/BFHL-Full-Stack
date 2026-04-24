@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BFHL Challenge</title>
+  <meta name="description" content="Parse directed graph edges to extract tree hierarchies, detect cycles, and visualize node relationships.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="on-hero">
+
+  <!-- ═══ HERO SECTION ═══ -->
+  <section class="hero">
+    <div class="hero-bg">
+      <img src="hero-bg.png" alt="" class="hero-bg-img" />
+      <div class="hero-overlay"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="nav-brand">NodeFlow</div>
+      <div class="nav-pill">
+        <a href="javascript:void(0)" class="nav-link active" id="navExplorer">Explorer</a>
+        <a href="javascript:void(0)" class="nav-link" id="navResults">Results</a>
+      </div>
+      <div class="nav-end">
+        <button class="nav-btn" id="scrollToInput">Try Now</button>
+      </div>
+    </nav>
+
+    <!-- Hero Content -->
+    <div class="hero-content">
+      <div class="hero-pill">
+        <span>✦ GRAPH HIERARCHY ENGINE</span>
+      </div>
+      <h1 class="hero-title">
+        Parse Nodes.<br>
+        <em>Visualize structure.</em>
+      </h1>
+      <p class="hero-desc">
+        Stop manually tracing edges and complex setups. Just describe your graph,<br>
+        NodeFlow finds roots, detects cycles, and builds the tree for you.<br>
+        Everything handled. Just explore the result.
+      </p>
+      <div class="hero-actions">
+        <button type="button" class="cta-btn" id="ctaStart">
+          Start Exploring
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </button>
+        <button type="button" class="cta-link" id="ctaHow">See How It Works <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stats-bar-inner">
+        <div class="stats-bar-item">
+          <span class="stats-bar-val" id="statTrees">—</span>
+          <span class="stats-bar-label">trees extracted</span>
+        </div>
+        <div class="stats-bar-divider"></div>
+        <div class="stats-bar-item">
+          <span class="stats-bar-val" id="statCycles">—</span>
+          <span class="stats-bar-label">cycles detected</span>
+        </div>
+        <div class="stats-bar-divider"></div>
+        <div class="stats-bar-item">
+          <span class="stats-bar-val" id="statLargest">—</span>
+          <span class="stats-bar-label">largest tree root</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MAIN APP ═══ -->
+  <main class="main-app hidden" id="mainApp">
+
+    <!-- Input Section -->
+    <section class="input-section">
+      <div class="section-label">INPUT</div>
+      <h2 class="section-title">Paste your JSON input</h2>
+      <div class="input-card">
+        <textarea id="dataInput" spellcheck="false" placeholder='{
+  "data": [
+    "A->B", "A->C", "B->D", "C->E", "E->F",
+    "X->Y", "Y->Z", "Z->X",
+    "P->Q", "Q->R",
+    "G->H", "G->I"
+  ]
+}'></textarea>
+        <div class="input-bar">
+          <span class="input-hint">JSON format · <code>{"data": ["A->B", ...]}</code></span>
+          <div class="input-btns">
+            <button id="clearBtn" class="btn-clear" type="button">Clear</button>
+            <button id="submitBtn" class="btn-submit" type="button">
+              <span class="btn-label">Process Nodes</span>
+              <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <div class="btn-spinner hidden"><div class="dot-loader"><span></span><span></span><span></span></div></div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="errorBanner" class="error-banner hidden">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="errorText"></span>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="results-section hidden">
+
+      <!-- Tags -->
+      <div class="tag-row">
+        <div class="tag-card">
+          <h3 class="tag-heading warn">⚠ Invalid Entries</h3>
+          <div id="invalidEntries" class="tag-list"></div>
+        </div>
+        <div class="tag-card">
+          <h3 class="tag-heading info">⧉ Duplicate Edges</h3>
+          <div id="duplicateEdges" class="tag-list"></div>
+        </div>
+      </div>
+
+      <!-- Hierarchies -->
+      <div class="hier-area">
+        <div class="section-label">HIERARCHIES</div>
+        <h2 class="section-title">Extracted structures</h2>
+        <div id="hierGrid" class="hier-grid"></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footerInfo" class="footer hidden">
+      <span class="f-pill" id="fUser"></span>
+      <span class="f-pill" id="fEmail"></span>
+      <span class="f-pill" id="fRoll"></span>
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
