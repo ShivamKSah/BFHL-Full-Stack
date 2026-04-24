@@ -83,16 +83,11 @@
       <div class="section-label">INPUT</div>
       <h2 class="section-title">Paste your JSON input</h2>
       <div class="input-card">
-        <textarea id="dataInput" spellcheck="false" placeholder='{
-  "data": [
-    "A->B", "A->C", "B->D", "C->E", "E->F",
-    "X->Y", "Y->Z", "Z->X",
-    "P->Q", "Q->R",
-    "G->H", "G->I"
-  ]
-}'></textarea>
+        <textarea id="dataInput" spellcheck="false" placeholder='A->B, A->C, B->D...
+or
+{ "data": ["A->B", "A->C"] }'></textarea>
         <div class="input-bar">
-          <span class="input-hint">JSON format · <code>{"data": ["A->B", ...]}</code></span>
+          <span class="input-hint">Supports JSON or raw text · <code>A->B, C->D</code></span>
           <div class="input-btns">
             <button id="clearBtn" class="btn-clear" type="button">Clear</button>
             <button id="submitBtn" class="btn-submit" type="button">

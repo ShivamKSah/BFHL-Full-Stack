@@ -44,19 +44,22 @@
 
     try {
       const raw = dataInput.value.trim();
-      if (!raw) throw new Error('Please paste a JSON input, e.g. {"data": ["A->B", "C->D"]}');
+      if (!raw) throw new Error('Please enter nodes (e.g. A->B, C->D) or a JSON object.');
 
-      // ── Parse the JSON input ──
       let payload;
-      try {
-        payload = JSON.parse(raw);
-      } catch (e) {
-        throw new Error('Invalid JSON. Please enter valid JSON, e.g. {"data": ["A->B", "C->D"]}');
-      }
-
-      // Validate it has a "data" array
-      if (!payload.data || !Array.isArray(payload.data)) {
-        throw new Error('JSON must contain a "data" array, e.g. {"data": ["A->B", "C->D"]}');
+      if (raw.startsWith('{')) {
+        try {
+          payload = JSON.parse(raw);
+          if (!payload.data || !Array.isArray(payload.data)) {
+            throw new Error('JSON must contain a "data" array.');
+          }
+        } catch (e) {
+          throw new Error('Invalid JSON format. Check your syntax or use raw text.');
+        }
+      } else {
+        // Assume raw comma-separated list
+        const items = raw.split(',').map(s => s.trim()).filter(Boolean);
+        payload = { data: items };
       }
 
       const res = await fetch('/bfhl', {

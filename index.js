@@ -35,18 +35,24 @@ app.post('/bfhl', (req, res) => {
   const firstAppearance = new Map();
   let orderCounter = 0;
 
-  const EDGE_PATTERN = /^[A-Z]->[A-Z]$/;
+  const EDGE_PATTERN = /^(.+)->(.+)$/;
 
   for (const rawItem of data) {
     const item = typeof rawItem === 'string' ? rawItem.trim() : String(rawItem);
+    const match = item.match(EDGE_PATTERN);
 
-    const isValidFormat = EDGE_PATTERN.test(item);
-    const isSelfLoop = isValidFormat && item[0] === item[3];
+    if (match) {
+      const parent = match[1].trim();
+      const child = match[2].trim();
+      
+      if (!parent || !child || parent === child) {
+        invalid_entries.push(item);
+        continue;
+      }
 
-    if (isValidFormat && !isSelfLoop) {
-      // Record first-appearance order for each node
-      if (!firstAppearance.has(item[0])) firstAppearance.set(item[0], orderCounter++);
-      if (!firstAppearance.has(item[3])) firstAppearance.set(item[3], orderCounter++);
+      // Record first-appearance order
+      if (!firstAppearance.has(parent)) firstAppearance.set(parent, orderCounter++);
+      if (!firstAppearance.has(child)) firstAppearance.set(child, orderCounter++);
 
       if (seenEdges.has(item)) {
         if (!reportedDuplicates.has(item)) {
@@ -55,7 +61,7 @@ app.post('/bfhl', (req, res) => {
         }
       } else {
         seenEdges.add(item);
-        valid_edges.push({ parent: item[0], child: item[3] });
+        valid_edges.push({ parent, child });
       }
     } else {
       invalid_entries.push(item);
