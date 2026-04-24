@@ -13,7 +13,7 @@ const app = express();
 // ── Middleware ───────────────────────────────────────────
 app.use(cors());                                       // Enable CORS for all origins
 app.use(express.json());                               // Parse JSON request bodies
-app.use(express.static(path.join(__dirname, 'public'))); // Serve frontend
+app.use(express.static(path.join(__dirname, '../frontend'))); // Serve frontend from sibling folder
 
 // ── POST /bfhl ──────────────────────────────────────────
 app.post('/bfhl', (req, res) => {
